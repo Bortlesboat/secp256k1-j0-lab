@@ -46,7 +46,7 @@ def analyze_curve(*, p: int, a: int, b: int) -> ExperimentResult:
     single_coordinate_preserved = 0
     single_preserved_x1_zero = 0
     single_preserved_obstruction_zero = 0
-    single_preserved_unexplained = 0 if a == 0 else None
+    single_preserved_unexplained = 0 if curve.is_j0 else None
 
     for left in finite:
         for right in finite:
@@ -64,7 +64,7 @@ def analyze_curve(*, p: int, a: int, b: int) -> ExperimentResult:
                 single_coordinate_preserved += 1
                 if left.x == 0:
                     single_preserved_x1_zero += 1
-                if a == 0:
+                if curve.is_j0:
                     obstruction_is_zero = single_coordinate_obstruction(
                         left.x, right.x, third.x, beta, curve
                     ) == 0

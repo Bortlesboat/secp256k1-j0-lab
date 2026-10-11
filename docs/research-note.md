@@ -165,7 +165,7 @@ Verification on 2026-10-10:
 
 ```text
 python -m pytest
-15 passed
+17 passed
 
 python -m compileall -q src tests
 completed without errors

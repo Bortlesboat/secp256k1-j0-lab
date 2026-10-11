@@ -43,25 +43,30 @@ class Curve:
         x, y = point.x % self.p, point.y % self.p
         return y * y % self.p == (x * x * x + self.a * x + self.b) % self.p
 
+    @property
+    def is_j0(self) -> bool:
+        return self.a % self.p == 0
+
     def points(self) -> tuple[Point, ...]:
         points = [Point.infinity()]
+        roots_by_square: dict[int, list[int]] = {}
+        for y in range(self.p):
+            roots_by_square.setdefault(y * y % self.p, []).append(y)
         for x in range(self.p):
             rhs = (x * x * x + self.a * x + self.b) % self.p
-            for y in range(self.p):
-                if y * y % self.p == rhs:
-                    points.append(Point(x, y))
+            points.extend(Point(x, y) for y in roots_by_square.get(rhs, ()))
         return tuple(points)
 
     def negate(self, point: Point) -> Point:
-        self._require_point(point)
+        point = self._canonical_point(point)
         if point.is_infinity:
             return point
         assert point.x is not None and point.y is not None
         return Point(point.x % self.p, (-point.y) % self.p)
 
     def add(self, left: Point, right: Point) -> Point:
-        self._require_point(left)
-        self._require_point(right)
+        left = self._canonical_point(left)
+        right = self._canonical_point(right)
         if left.is_infinity:
             return right
         if right.is_infinity:
@@ -80,12 +85,10 @@ class Curve:
 
         x = (slope * slope - left.x - right.x) % self.p
         y = (slope * (left.x - x) - left.y) % self.p
-        result = Point(x, y)
-        self._require_point(result)
-        return result
+        return self._canonical_point(Point(x, y))
 
     def multiply(self, point: Point, scalar: int) -> Point:
-        self._require_point(point)
+        point = self._canonical_point(point)
         if scalar < 0:
             return self.multiply(self.negate(point), -scalar)
 
@@ -105,22 +108,24 @@ class Curve:
         raise ValueError("field has no nontrivial cube root of unity")
 
     def cubic_automorphism(self, point: Point, beta: int | None = None) -> Point:
-        if self.a % self.p != 0:
+        if not self.is_j0:
             raise ValueError("the cubic automorphism requires a j=0 curve with a=0")
-        self._require_point(point)
+        point = self._canonical_point(point)
         if point.is_infinity:
             return point
         beta = self.nontrivial_cube_root() if beta is None else beta % self.p
         if beta == 1 or pow(beta, 3, self.p) != 1:
             raise ValueError("beta must be a nontrivial cube root of unity")
         assert point.x is not None and point.y is not None
-        result = Point(beta * point.x % self.p, point.y)
-        self._require_point(result)
-        return result
+        return self._canonical_point(Point(beta * point.x % self.p, point.y))
 
-    def _require_point(self, point: Point) -> None:
+    def _canonical_point(self, point: Point) -> Point:
         if not self.contains(point):
             raise ValueError("point is not on this curve")
+        if point.is_infinity:
+            return Point.infinity()
+        assert point.x is not None and point.y is not None
+        return Point(point.x % self.p, point.y % self.p)
 
 
 def _is_prime(value: int) -> bool:

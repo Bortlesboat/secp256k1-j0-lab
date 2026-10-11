@@ -24,6 +24,15 @@ def test_group_operations_close_on_curve() -> None:
     assert curve.multiply(left, 3) == curve.add(left, curve.add(left, left))
 
 
+def test_arithmetic_normalizes_equivalent_affine_coordinates() -> None:
+    curve = Curve(p=31, a=0, b=7)
+    point = next(point for point in curve.points() if not point.is_infinity)
+    equivalent = Point(point.x + curve.p, point.y + curve.p)
+
+    assert curve.add(point, equivalent) == curve.add(point, point)
+    assert curve.negate(equivalent) == curve.negate(point)
+
+
 def test_nontrivial_cube_root_defines_j0_automorphism() -> None:
     curve = Curve(p=31, a=0, b=7)
     beta = curve.nontrivial_cube_root()

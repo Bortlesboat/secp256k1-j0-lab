@@ -23,6 +23,14 @@ def test_matched_control_does_not_have_the_j0_diagonal_action() -> None:
     assert result.diagonal_preserved < result.relation_count
 
 
+def test_j0_classification_uses_field_equivalence() -> None:
+    canonical = analyze_curve(p=31, a=0, b=7)
+    equivalent = analyze_curve(p=31, a=31, b=7)
+
+    assert equivalent.diagonal_preserved == canonical.diagonal_preserved
+    assert equivalent.single_preserved_unexplained == 0
+
+
 def test_cli_emits_machine_readable_paired_results(capsys) -> None:
     exit_code = main(["--primes", "31"])
 
