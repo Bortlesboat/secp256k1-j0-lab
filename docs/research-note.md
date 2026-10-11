@@ -165,8 +165,17 @@ Verification on 2026-10-10:
 
 ```text
 python -m pytest
-17 passed
+19 passed
 
 python -m compileall -q src tests
 completed without errors
+
+ruff check .
+all checks passed
 ```
+
+An independent review pass also tightened the experimental contract: the CLI
+rejects a purported control whose `a` coefficient is zero in any selected
+field, and j=0-only obstruction counts are serialized as `null` for controls
+rather than as an unevaluated zero. The two polynomial identities are checked
+exhaustively over all coordinate triples in `F_13`.

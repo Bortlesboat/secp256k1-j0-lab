@@ -17,7 +17,7 @@ class ExperimentResult:
     diagonal_preserved: int
     single_coordinate_preserved: int
     single_preserved_x1_zero: int
-    single_preserved_obstruction_zero: int
+    single_preserved_obstruction_zero: int | None
     single_preserved_unexplained: int | None
 
     @property
@@ -45,7 +45,7 @@ def analyze_curve(*, p: int, a: int, b: int) -> ExperimentResult:
     diagonal_preserved = 0
     single_coordinate_preserved = 0
     single_preserved_x1_zero = 0
-    single_preserved_obstruction_zero = 0
+    single_preserved_obstruction_zero = 0 if curve.is_j0 else None
     single_preserved_unexplained = 0 if curve.is_j0 else None
 
     for left in finite:
@@ -69,6 +69,7 @@ def analyze_curve(*, p: int, a: int, b: int) -> ExperimentResult:
                         left.x, right.x, third.x, beta, curve
                     ) == 0
                     if obstruction_is_zero:
+                        assert single_preserved_obstruction_zero is not None
                         single_preserved_obstruction_zero += 1
                     if left.x != 0 and not obstruction_is_zero:
                         assert single_preserved_unexplained is not None

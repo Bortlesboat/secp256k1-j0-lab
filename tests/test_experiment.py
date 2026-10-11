@@ -21,6 +21,7 @@ def test_matched_control_does_not_have_the_j0_diagonal_action() -> None:
 
     assert result.relation_count > 0
     assert result.diagonal_preserved < result.relation_count
+    assert result.single_preserved_obstruction_zero is None
 
 
 def test_j0_classification_uses_field_equivalence() -> None:
@@ -39,3 +40,21 @@ def test_cli_emits_machine_readable_paired_results(capsys) -> None:
     assert payload["schema_version"] == 1
     assert payload["experiments"][0]["j0"]["p"] == 31
     assert payload["experiments"][0]["control"]["a"] == 2
+    assert payload["experiments"][0]["control"]["single_preserved_obstruction_zero"] is None
+
+
+def test_cli_rejects_prime_without_nontrivial_cube_root() -> None:
+    with pytest.raises(
+        SystemExit, match=r"primes must be 1 modulo 3; received \[17\]"
+    ):
+        main(["--primes", "17"])
+
+
+def test_cli_rejects_control_that_is_j0_in_selected_field(capsys) -> None:
+    with pytest.raises(
+        SystemExit,
+        match=r"control-a must be nonzero in every selected field; zero modulo \[31\]",
+    ):
+        main(["--primes", "31", "--control-a", "31"])
+
+    assert capsys.readouterr().out == ""

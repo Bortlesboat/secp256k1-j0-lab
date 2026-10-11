@@ -5,5 +5,6 @@
 - [x] Measure diagonal versus independent automorphism preservation with field-matched controls.
 - [x] Record the hypothesis, evidence, limitations, and next experiment.
 - [x] Run the complete local verification suite.
+- [x] Apply the independent review findings and strengthen identity regression tests.
 
 Detailed evidence: [research note](../docs/research-note.md)

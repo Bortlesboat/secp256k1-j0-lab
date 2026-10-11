@@ -29,6 +29,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     invalid = [prime for prime in args.primes if prime % 3 != 1]
     if invalid:
         raise SystemExit(f"primes must be 1 modulo 3; received {invalid}")
+    j0_controls = [prime for prime in args.primes if args.control_a % prime == 0]
+    if j0_controls:
+        raise SystemExit(
+            "control-a must be nonzero in every selected field; "
+            f"zero modulo {j0_controls}"
+        )
 
     experiments = []
     for prime in args.primes:
